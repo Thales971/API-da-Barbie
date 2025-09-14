@@ -3,9 +3,10 @@ import dados from "../models/dados.js";
 const { barbies } = dados;
 
 const getAllBarbies = (req, res) => {
-  res.status(200).json(barbies);
-  total: barbies.length;
-  barbies: barbies;
+  res.status(200).json({
+    total: barbies.length,
+    barbies: barbies,
+  });
 };
 
 const getBarbieById = (req, res) => {
@@ -26,7 +27,7 @@ const createBarbie = (req, res) => {
   if (!nome || !profissao) {
     return res.status(400).json({
       sucess: "false",
-      message: "Nome e casa são obrigatórios",
+      message: "Nome e profissão são obrigatórios",
     });
   }
 
@@ -42,7 +43,7 @@ const createBarbie = (req, res) => {
   res.status(201).json({
     sucess: "true",
     message: "Nova Barbie criada com sucesso",
-    bruxo: novoBarbie,
+    barbie: novaBarbie,
   });
 };
 
@@ -59,7 +60,8 @@ const deleteBarbie = (req, res) => {
 
   const barbiesFiltradas = barbies.filter((barbie) => barbie.id !== id);
 
-  barbie.splice(0, barbie.length, ...barbiesFiltradas);
+  // Atualiza o array original
+  barbies.splice(0, barbies.length, ...barbiesFiltradas);
 
   res.status(200).json({
     sucess: "true",
