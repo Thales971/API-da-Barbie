@@ -1,5 +1,6 @@
 import express from "express";
 import dados from "../models/dados.js";
+import res from "express/lib/response.js";
 const { barbies } = dados;
 
 const getAllBarbies = (req, res) => {
@@ -70,4 +71,55 @@ const deleteBarbie = (req, res) => {
   });
 };
 
-export { getAllBarbies, getBarbieById, createBarbie, deleteBarbie };
+// PUT /barbies/:id - Atualizar barbie existente por ID
+const updateBarbie = (req, res) => {
+  const { id } = req.params;
+  const { nome, anoLancamento, profissao} = req.body;
+
+  // Validar ID
+  if (isNaN(id)) {
+      return res.status(400).json({
+          success: false,
+          message: "ID deve ser um número válido!"
+      });
+  }
+
+  const idParaEditar = parseInt(id);
+  
+  // Verificar se barbie existe
+  const barbieExiste = barbies.find(b => b.id === idParaEditar);
+  if (!barbieExiste) {
+      return res.status(404).json({
+          success: false,
+          message: `barbie com ID ${id} não encontrado para atualização!`
+      });
+  }
+
+  // Atualizar barbie usando map
+  const barbiesAtualizados = barbies.map(barbie => 
+      barbie.id === idParaEditar 
+          ? { 
+              ...barbie, 
+              ...(nome && { nome }),
+              ...(profissao && { profissao }),
+              ...(anoLancamento && { anoLancamento: parseInt(anoLancamento) }),
+            }
+          : barbie
+  );
+
+  // Atualizar array global
+  barbies.splice(0, barbies.length, ...barbiesAtualizados);
+
+  // Buscar barbie atualizado para retorno
+  const barbieAtualizado = barbies.find(b => b.id === idParaEditar);
+
+  res.status(200).json({
+      success: true,
+      message: `Dados do barbie ID ${id} atualizados com sucesso!`,
+      barbie: barbieAtualizado
+  });
+};
+
+
+
+export { getAllBarbies, getBarbieById, createBarbie, deleteBarbie, updateBarbie };
